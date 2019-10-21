@@ -1,37 +1,44 @@
-// OGÓLNA FUNKCJA
-function randomString() {
-	var chars = '0123456789abcdefghiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXTZ'.split();
-	var str = '', i;
-	for (i = 0; i < 10; i++) {
-	  str += chars[Math.floor(Math.random() * chars.length)];
-	}
-	return str;
-}
+//API 
 
+const baseUrl = 'https://kodilla.com/pl/bootcamp-api';
+const myHeaders = {
+	'X-Client-Id': 4090,
+	'X-Auth-Token': '10bf9e853a8a89f211da9458ef1df413'
+};
+
+fetch(baseUrl + '/board', {method: 'GET', headers: myHeaders})
+    .then(function (resp) {
+        return resp.json();
+    })
+    .then(function (resp) {
+        setUpColumns(resp.columns);
+    });
+
+//TEMPLATE
+		
 function generateTemplate(name, data, basicElement) {
-  	var template = document.getElementById(name).innerHTML;
-  	var element = document.createElement(basicElement || 'div');
-  
-  	Mustache.parse(template);
-  	element.innerHTML = Mustache.render(template, data);
-  
-  	return element;
+	const template = document.getElementById(name).innerHTML;
+	const element = document.createElement(basicElement || 'div');
+
+	Mustache.parse(template);
+	element.innerHTML = Mustache.render(template, data);
+
+	return element;
 }
 
-// TWORZENIE NOWYCH EGZEMPLARZY KOLUMN
-var todoColumn = new Column('Do zrobienia');
-var doingColumn = new Column('W trakcie');
-var doneColumn = new Column('Skończone');
+// ADD COLUMN
+function setUpColumns(columns) {
+	columns.forEach(function (column) {
+		const col = new Column(column.id, column.name);
+		board.addColumn(col);
+		setUpCards(col, column.cards);
+	});
+}
 
-// DODAWANIE KOLUMN DO TABLICY
-board.createColumn(todoColumn);
-board.createColumn(doingColumn);
-board.createColumn(doneColumn);
-
-// TWORZENIE NOWYCH EGZEMPLARZY KART
-var card1 = new Card('Nowe zadanie');
-var card2 = new Card('stworzyc tablice kanban');
-
-// DODAWANIE KART DO KOLUMN
-todoColumn.createCard(card1);
-doingColumn.createCard(card2);
+// ADD CARD
+function setUpCards(col, cards) {
+	cards.forEach(function (card) {
+		const cardObj = new Card(card.id, card.name);
+		col.addCard(cardObj);
+	})
+}
